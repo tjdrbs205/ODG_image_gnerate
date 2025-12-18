@@ -2,7 +2,7 @@ import { clearAccessToken, getAccessToken } from './auth';
 
 // API 기본 URL 설정
 // 배포 환경(Nginx) 및 로컬 개발 환경(Vite Proxy) 모두 '/api'를 사용하므로 상대 경로로 설정합니다.
-const API_BASE = '/api';
+const API_BASE = '/odg-image-api';
 
 type HttpMethod = 'GET' | 'POST';
 
