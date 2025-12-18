@@ -21,14 +21,7 @@ export class GalleryService {
       images.map(async (img) => {
         let imageUrl: string | undefined = undefined;
         if (img.objectKey) {
-          const presigned = await this.minioService.getImageUrl(img.objectKey);
-          try {
-            const u = new URL(presigned);
-            u.pathname = '/storage/' + img.objectKey;
-            imageUrl = u.toString();
-          } catch {
-            imageUrl = presigned;
-          }
+          imageUrl = await this.minioService.getImageUrl(img.objectKey);
         }
         return {
           id: img.id,
