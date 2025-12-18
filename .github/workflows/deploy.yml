@@ -48,7 +48,7 @@ jobs:
 
       # 백엔드 빌드 및 푸시 (api 관련 파일이 변경되었을 때만 실행)
       - name: Build and push API image
-        if: steps.changes.outputs.api == 'true'
+        # if: steps.changes.outputs.api == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
