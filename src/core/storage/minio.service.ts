@@ -4,7 +4,8 @@ import * as Minio from 'minio';
 
 @Injectable()
 export class MinioService implements OnModuleInit {
-  private client!: Minio.Client;
+  private client: Minio.Client;
+  private publicClient: Minio.Client;
 
   private readonly bucket: string;
 
@@ -23,14 +24,22 @@ export class MinioService implements OnModuleInit {
     const secretKey = this.configService.getOrThrow<string>(
       'runtime.MINIO_SECRET_KEY',
     );
-    const useSSL = this.configService.getOrThrow<string>(
-      'runtime.MINIO_USE_SSL',
+    const publicEndpint = this.configService.getOrThrow<string>(
+      'runtime.MINIO_PUBLIC_ENDPOINT',
     );
 
     this.client = new Minio.Client({
       port,
       useSSL: false,
       endPoint,
+      accessKey,
+      secretKey,
+    });
+
+    this.publicClient = new Minio.Client({
+      port: 443,
+      useSSL: true,
+      endPoint: publicEndpint,
       accessKey,
       secretKey,
     });
@@ -62,6 +71,10 @@ export class MinioService implements OnModuleInit {
   }
 
   async getImageUrl(objectKey: string): Promise<string> {
-    return this.client.presignedGetObject(this.bucket, objectKey, 60 * 60);
+    return this.publicClient.presignedGetObject(
+      this.bucket,
+      objectKey,
+      60 * 60,
+    );
   }
 }
