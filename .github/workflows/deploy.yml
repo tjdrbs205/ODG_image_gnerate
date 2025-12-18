@@ -91,10 +91,10 @@ jobs:
           echo "  StrictHostKeyChecking no" >> ~/.ssh/config
           echo "  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
 
-      - name: Copy docker-compose.prod.yml to server
+      - name: Copy docker-compose.yml to server
         run: |
           # scp 명령어로 파일 전송 (Tailscale이 연결되어 있으므로 호스트명으로 바로 접속 가능)
-          scp docker-compose.prod.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USER }}/odg-project/
+          scp docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USER }}/odg-project/
 
       - name: Deploy to server
         run: |
