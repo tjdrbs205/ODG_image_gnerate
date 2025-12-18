@@ -93,22 +93,33 @@ jobs:
           scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null docker-compose.yml ${{ secrets.USER_NAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.USER_NAME }}/odg-project/
 
       - name: Deploy to server
+        env:
+          CONFIG_API_KEY: ${{ secrets.CONFIG_API_KEY }}
+          CONFIG_ENDPOINT: ${{ secrets.CONFIG_ENDPOINT }}
         run: |
-          # ssh 명령어로 원격 스크립트 실행 (옵션으로 호스트 키 검사 무시)
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.USER_NAME }}@${{ secrets.SERVER_HOST }} "
-            cd /home/${{ secrets.USER_NAME }}/odg-project/
-            
-            # 환경변수 설정 (소문자 변환)
-            export GITHUB_REPOSITORY_OWNER=\$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
-            
-            # GHCR 로그인
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
-            docker compose -f docker-compose.yml up -d \
-              --pull always \
-              --force-recreate \
-              --remove-orphans
-            
-            # 불필요한 이미지 정리
-            docker image prune -af --filter "until=24h"
-          "
+          # 1) 러너에서 env 파일 생성 (로그에 찍지 않음)
+          printf "CONFIG_API_KEY=%s\nCONFIG_ENDPOINT=%s\n" "$CONFIG_API_KEY" "$CONFIG_ENDPOINT" > .env
+
+          # 2) compose + env 파일을 서버로 복사
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null docker-compose.yml .env \
+            ${{ secrets.USER_NAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.USER_NAME }}/odg-project/
+
+          # 3) 서버에서 최신 이미지 pull + 강제 재생성(+env-file 적용)
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            ${{ secrets.USER_NAME }}@${{ secrets.SERVER_HOST }} "
+              set -e
+              cd /home/${{ secrets.USER_NAME }}/odg-project/
+
+              echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+              docker compose -f docker-compose.yml --env-file .env up -d \
+                --pull always \
+                --force-recreate \
+                --remove-orphans
+
+              rm -f .env
+              docker image prune -af --filter 'until=24h'
+            "
+
+          # 러너에서도 제거
+          rm -f .env

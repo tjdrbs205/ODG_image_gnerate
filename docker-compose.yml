@@ -1,5 +1,8 @@
 services:
   api:
+    environment:
+      CONFIG_API_KEY: ${CONFIG_API_KEY}
+      CONFIG_ENDPOINT: ${CONFIG_ENDPOINT}
     image: ghcr.io/tjdrbs205/odg-api:latest
     container_name: odg-image-api
     restart: unless-stopped
