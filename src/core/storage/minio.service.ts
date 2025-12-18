@@ -42,6 +42,7 @@ export class MinioService implements OnModuleInit {
       endPoint: publicEndpint,
       accessKey,
       secretKey,
+      region: 'us-east-1',
     });
 
     const exists = await this.client.bucketExists(this.bucket);
