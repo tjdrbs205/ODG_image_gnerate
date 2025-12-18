@@ -13,4 +13,5 @@ services:
 
 networks:
   ogidogi-net:
+    external: true
     name: ogidogi-net
