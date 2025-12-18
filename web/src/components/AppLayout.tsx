@@ -123,7 +123,7 @@ export function AppLayout() {
         for (const item of items) {
           const prevStatus = prev[item.id];
           if (prevStatus && prevStatus !== item.status) {
-            if (item.status === 'completed') {
+            if (item.status === 'COMPLETED') {
               setNotices((n) => [
                 {
                   id: `${item.id}:${Date.now()}`,
@@ -132,7 +132,7 @@ export function AppLayout() {
                 ...n,
               ]);
             }
-            if (item.status === 'failed') {
+            if (item.status === 'FAILED') {
               setNotices((n) => [
                 {
                   id: `${item.id}:${Date.now()}`,
