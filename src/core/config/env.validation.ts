@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 export const bootstrapSchema = Joi.object({
-  PORT: Joi.number().default(8000),
+  PORT: Joi.number().default(3000),
   NODE_ENV: Joi.string().valid('development', 'production', 'test', 'staging'),
   CONFIG_ENDPOINT: Joi.string().uri().required(),
   CONFIG_API_KEY: Joi.string().required(),
