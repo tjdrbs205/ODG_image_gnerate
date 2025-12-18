@@ -6,7 +6,7 @@ services:
     networks: [ogidogi-net]
 
   web:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/odg-web::${API_TAG:-latest}
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/odg-web:${WEB_TAG:-latest}
     container_name: odg-image-web
     restart: unless-stopped
     networks: [ogidogi-net]
