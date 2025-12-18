@@ -82,6 +82,11 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
+      # 서버에 배포 디렉토리 생성 (추가됨)
+      - name: Create directory on server
+        run: |
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.USER_NAME }}@${{ secrets.SERVER_HOST }} "mkdir -p /home/${{ secrets.USER_NAME }}/odg-project/"
+
       - name: Copy docker-compose.yml to server
         run: |
           # scp 명령어로 파일 전송 (옵션으로 호스트 키 검사 무시)
