@@ -19,10 +19,17 @@ export class GalleryService {
 
     return Promise.all(
       images.map(async (img) => {
-        const imageUrl = img.objectKey
-          ? await this.minioService.getImageUrl(img.objectKey)
-          : undefined;
-
+        let imageUrl: string | undefined = undefined;
+        if (img.objectKey) {
+          const presigned = await this.minioService.getImageUrl(img.objectKey);
+          try {
+            const u = new URL(presigned);
+            u.pathname = '/storage/' + img.objectKey;
+            imageUrl = u.toString();
+          } catch {
+            imageUrl = presigned;
+          }
+        }
         return {
           id: img.id,
           prompt: img.prompt,
