@@ -1,12 +1,12 @@
 services:
   api:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/odg-api:latest
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/odg-api:${API_TAG:-latest}
     container_name: odg-image-api
     restart: unless-stopped
     networks: [ogidogi-net]
 
   web:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/odg-web:latest
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/odg-web::${API_TAG:-latest}
     container_name: odg-image-web
     restart: unless-stopped
     networks: [ogidogi-net]
