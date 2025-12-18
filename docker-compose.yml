@@ -3,17 +3,14 @@ services:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/odg-api:latest
     container_name: odg-image-api
     restart: always
-    networks:
-      - ogidogi-net
+    networks: [ogidogi-net]
 
   web:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/odg-web:latest
     container_name: odg-image-web
     restart: always
-    networks:
-      - ogidogi-net
+    networks: [ogidogi-net]
 
 networks:
   ogidogi-net:
     external: true
-    name: ogidogi-net
