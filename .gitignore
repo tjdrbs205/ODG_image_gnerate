@@ -56,8 +56,8 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # local data
-data
+data/
 
 # prisma
-/generated/prisma
+/generated
 

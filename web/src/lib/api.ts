@@ -1,6 +1,8 @@
 import { clearAccessToken, getAccessToken } from './auth';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+// API 기본 URL 설정
+// 배포 환경(Nginx) 및 로컬 개발 환경(Vite Proxy) 모두 '/api'를 사용하므로 상대 경로로 설정합니다.
+const API_BASE = '/api';
 
 type HttpMethod = 'GET' | 'POST';
 
