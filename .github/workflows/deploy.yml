@@ -48,7 +48,7 @@ jobs:
 
       # 백엔드 빌드 및 푸시 (api 관련 파일이 변경되었을 때만 실행)
       - name: Build and push API image
-        # if: steps.changes.outputs.api == 'true'
+        if: steps.changes.outputs.api == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -58,7 +58,7 @@ jobs:
 
       # 프론트엔드 빌드 및 푸시 (web 폴더가 변경되었을 때만 실행)
       - name: Build and push Web image
-        # if: steps.changes.outputs.web == 'true'
+        if: steps.changes.outputs.web == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./web
@@ -104,13 +104,10 @@ jobs:
             # GHCR 로그인
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # 최신 이미지 Pull 및 재실행
-            docker compose pull
-            docker compose up -d
-
-            # 최신 이미지 Pull 및 재실행
-            docker compose -f docker-compose.yml pull
-            docker compose -f docker-compose.yml up -d
+            docker compose -f docker-compose.yml up -d \
+              --pull always \
+              --force-recreate \
+              --remove-orphans
             
             # 불필요한 이미지 정리
             docker image prune -af --filter "until=24h"
