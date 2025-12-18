@@ -85,13 +85,13 @@ jobs:
       - name: Copy docker-compose.yml to server
         run: |
           # scp 명령어로 파일 전송 (옵션으로 호스트 키 검사 무시)
-          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USER }}/odg-project/
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null docker-compose.yml ${{ secrets.USER_NAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.USER_NAME }}/odg-project/
 
       - name: Deploy to server
         run: |
           # ssh 명령어로 원격 스크립트 실행 (옵션으로 호스트 키 검사 무시)
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
-            cd /home/${{ secrets.SERVER_USER }}/odg-project/
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.USER_NAME }}@${{ secrets.SERVER_HOST }} "
+            cd /home/${{ secrets.USER_NAME }}/odg-project/
             
             # 환경변수 설정 (소문자 변환)
             export GITHUB_REPOSITORY_OWNER=\$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
