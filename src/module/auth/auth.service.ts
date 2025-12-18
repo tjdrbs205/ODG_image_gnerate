@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthCredentialsDto } from './dto/auth.dto';
-import { UserRepository } from '../repositories/users/user.repository';
+import { UserService } from '../repositories/users/user.service';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { UserCreateInput } from 'generated/prisma/models';
@@ -13,14 +13,14 @@ import { UserCreateInput } from 'generated/prisma/models';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
 
   async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
     const { username, password } = authCredentialsDto;
 
-    const existingUser = await this.userRepository.findByUsername(username);
+    const existingUser = await this.userService.findByUsername(username);
 
     if (existingUser) {
       throw new ConflictException('이미 존재하는 사용자명입니다.');
@@ -36,7 +36,7 @@ export class AuthService {
       createdAt: new Date().toISOString(),
     };
 
-    await this.userRepository.create(user);
+    await this.userService.create(user);
   }
 
   async signIn(
@@ -44,7 +44,7 @@ export class AuthService {
   ): Promise<{ accessToken: string }> {
     const { username, password } = authCredentialsDto;
 
-    const user = await this.userRepository.findByUsername(username);
+    const user = await this.userService.findByUsername(username);
 
     if (user && (await bcrypt.compare(password, user.password))) {
       const payload = { username: user.username, sub: user.id };

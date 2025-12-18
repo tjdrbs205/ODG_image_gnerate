@@ -7,7 +7,7 @@ import {
 import { PrismaService } from 'src/core/database/prisma.service';
 
 @Injectable()
-export class ImagesRepository {
+export class ImagesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findByUserId(userId: string): Promise<ImageMetadata[]> {

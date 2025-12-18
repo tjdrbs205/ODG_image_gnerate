@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { ImagesRepository } from '../repositories/images/image.repository';
+import { ImagesService } from '../repositories/images/image.service';
 import { GalleryImageDto } from './dto/gallery.dto';
 import { MinioService } from 'src/core/storage/minio.service';
 
 @Injectable()
 export class GalleryService {
   constructor(
-    private readonly imagesRepository: ImagesRepository,
+    private readonly imagesService: ImagesService,
     private readonly minioService: MinioService,
   ) {}
 
@@ -15,7 +15,7 @@ export class GalleryService {
     if (!userId) {
       throw new Error('Invalid user data');
     }
-    const images = await this.imagesRepository.findByUserId(userId);
+    const images = await this.imagesService.findByUserId(userId);
 
     return Promise.all(
       images.map(async (img) => {

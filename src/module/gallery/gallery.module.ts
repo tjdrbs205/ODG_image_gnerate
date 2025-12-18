@@ -8,5 +8,6 @@ import { ImageModule } from '../repositories/images/image.module';
   imports: [AuthModule, ImageModule],
   controllers: [GalleryController],
   providers: [GalleryService],
+  exports: [GalleryService],
 })
 export class GalleryModule {}

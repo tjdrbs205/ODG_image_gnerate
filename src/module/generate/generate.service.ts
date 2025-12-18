@@ -9,16 +9,15 @@ import {
 } from './dto/generate-image.dto';
 import { PixellabService } from '../pixellab/pixellab.service';
 import { PromptTranslatorService } from './prompt-translator.service';
-import { ImagesRepository } from '../repositories/images/image.repository';
+import { ImagesService } from '../repositories/images/image.service';
 import { MinioService } from 'src/core/storage/minio.service';
-import { InputJsonValue } from 'generated/prisma/internal/prismaNamespace';
 
 @Injectable()
 export class GenerateService {
   constructor(
     private readonly pixellabService: PixellabService,
     private readonly promptTranslator: PromptTranslatorService,
-    private readonly imagesRepository: ImagesRepository,
+    private readonly imagesService: ImagesService,
     private readonly minioService: MinioService,
   ) {}
 
@@ -125,7 +124,7 @@ export class GenerateService {
     const id = uuidv4();
     const createdAt = new Date();
 
-    await this.imagesRepository.create({
+    await this.imagesService.create({
       id,
       user: { connect: { id: userId } },
       prompt: promptEn,
@@ -155,7 +154,7 @@ export class GenerateService {
           format: json.format,
         });
 
-        await this.imagesRepository.updateById(id, {
+        await this.imagesService.updateById(id, {
           status: 'COMPLETED',
           objectKey,
           format: json.format,
@@ -164,7 +163,7 @@ export class GenerateService {
       } catch (err) {
         console.error('Image generation failed', err);
         const message = this.userFriendlyJobError(err);
-        await this.imagesRepository.updateById(id, {
+        await this.imagesService.updateById(id, {
           status: 'FAILED',
           error: message,
         });

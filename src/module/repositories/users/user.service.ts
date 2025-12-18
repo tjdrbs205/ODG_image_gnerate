@@ -4,7 +4,7 @@ import { UserCreateInput } from 'generated/prisma/models';
 import { PrismaService } from 'src/core/database/prisma.service';
 
 @Injectable()
-export class UserRepository {
+export class UserService {
   constructor(private readonly prisma: PrismaService) {}
   async findByUsername(username: string): Promise<User | null> {
     const user = await this.prisma.user.findFirst({

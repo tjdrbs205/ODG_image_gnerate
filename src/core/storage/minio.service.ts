@@ -72,10 +72,6 @@ export class MinioService implements OnModuleInit {
   }
 
   async getImageUrl(objectKey: string): Promise<string> {
-    return this.publicClient.presignedGetObject(
-      this.bucket,
-      objectKey,
-      60 * 60,
-    );
+    return this.client.presignedGetObject(this.bucket, objectKey, 60 * 60);
   }
 }
