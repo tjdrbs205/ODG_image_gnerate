@@ -20,20 +20,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 변경된 경로 감지
-      - name: Check for changes
-        uses: dorny/paths-filter@v3
-        id: changes
-        # with:
-        #   filters: |
-        #     api:
-        #       - 'src/**'
-        #       - 'prisma/**'
-        #       - 'package.json'
-        #       - 'package-lock.json'
-        #       - 'Dockerfile'
-        #     web:
-        #       - 'web/**'
+      # # 변경된 경로 감지
+      # - name: Check for changes
+      #   uses: dorny/paths-filter@v3
+      #   id: changes
+      #   with:
+      #     filters: |
+      #       api:
+      #         - 'src/**'
+      #         - 'prisma/**'
+      #         - 'package.json'
+      #         - 'package-lock.json'
+      #         - 'Dockerfile'
+      #       web:
+      #         - 'web/**'
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
