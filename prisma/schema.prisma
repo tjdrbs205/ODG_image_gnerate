@@ -1,0 +1,51 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ImageStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum UserRole {
+  USER
+  MANAGER
+  ADMIN
+}
+
+model User {
+  id        String          @id @default(cuid())
+  username  String          @unique
+  password  String
+  role      UserRole        @default(USER)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  images    ImageMetadata[]
+}
+
+model ImageMetadata {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt     String
+  status     ImageStatus @default(PENDING)
+  objectKey  String?
+  format     String?
+  error      String?
+  params     Json?
+  width      Int?
+  height     Int?
+  seed       Int?
+  modelCount String?
+  createdAt  DateTime    @default(now())
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
