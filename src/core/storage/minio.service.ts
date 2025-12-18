@@ -7,7 +7,6 @@ export class MinioService implements OnModuleInit {
   private client!: Minio.Client;
 
   private readonly bucket: string;
-  private readonly publicUrl?: string;
 
   constructor(private readonly configService: ConfigService) {
     this.bucket = this.configService.getOrThrow<string>('runtime.MINIO_BUCKET');
@@ -63,17 +62,6 @@ export class MinioService implements OnModuleInit {
   }
 
   async getImageUrl(objectKey: string): Promise<string> {
-    if (this.publicUrl) {
-      const base = this.publicUrl.replace(/\/$/, '');
-      // Keep slashes in objectKey; encode segments safely.
-      const encodedKey = objectKey
-        .split('/')
-        .map((s) => encodeURIComponent(s))
-        .join('/');
-      return `${base}/${this.bucket}/${encodedKey}`;
-    }
-
-    // Fallback: presigned URL (default 1 hour)
     return this.client.presignedGetObject(this.bucket, objectKey, 60 * 60);
   }
 }
