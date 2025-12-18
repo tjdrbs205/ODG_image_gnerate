@@ -113,8 +113,8 @@ jobs:
           "
             
             # 최신 이미지 Pull 및 재실행
-            docker-compose -f docker-compose.yml pull
-            docker-compose -f docker-compose.yml up -d
+            docker compose -f docker-compose.yml pull
+            docker compose -f docker-compose.yml up -d
             
             # 불필요한 이미지 정리
             docker image prune -f
