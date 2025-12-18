@@ -117,7 +117,6 @@ jobs:
                 --force-recreate \
                 --remove-orphans
 
-              rm -f .env
               docker image prune -af --filter 'until=24h'
             "
 
