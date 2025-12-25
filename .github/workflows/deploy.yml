@@ -48,7 +48,6 @@ jobs:
 
       # 백엔드 빌드 및 푸시 (api 관련 파일이 변경되었을 때만 실행)
       - name: Build and push API image
-        if: steps.changes.outputs.api == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -58,7 +57,6 @@ jobs:
 
       # 프론트엔드 빌드 및 푸시 (web 폴더가 변경되었을 때만 실행)
       - name: Build and push Web image
-        if: steps.changes.outputs.web == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./web
