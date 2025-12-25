@@ -60,7 +60,10 @@ export function GalleryPage() {
 
       const id = data?.id;
       const status = data?.status;
-      if (!id || (status !== 'PENDING' && status !== 'COMPLETED' && status !== 'FAILED')) {
+      if (
+        !id ||
+        (status !== 'PENDING' && status !== 'COMPLETED' && status !== 'FAILED')
+      ) {
         return;
       }
 
@@ -87,7 +90,9 @@ export function GalleryPage() {
           ...(data.prompt ? { prompt: data.prompt } : null),
           ...(data.createdAt ? { createdAt: data.createdAt } : null),
           ...(typeof data.error !== 'undefined' ? { error: data.error } : null),
-          ...(typeof data.imageUrl !== 'undefined' ? { imageUrl: data.imageUrl } : null),
+          ...(typeof data.imageUrl !== 'undefined'
+            ? { imageUrl: data.imageUrl }
+            : null),
         };
 
         const copy = prev.slice();
