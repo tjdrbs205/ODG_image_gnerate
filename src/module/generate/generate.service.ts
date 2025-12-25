@@ -11,6 +11,7 @@ import { PixellabService } from '../pixellab/pixellab.service';
 import { PromptTranslatorService } from './prompt-translator.service';
 import { ImagesService } from '../repositories/images/image.service';
 import { MinioService } from 'src/core/storage/minio.service';
+import { NotificationService } from '../sse/notification.service';
 
 @Injectable()
 export class GenerateService {
@@ -19,6 +20,7 @@ export class GenerateService {
     private readonly promptTranslator: PromptTranslatorService,
     private readonly imagesService: ImagesService,
     private readonly minioService: MinioService,
+    private readonly notification: NotificationService,
   ) {}
 
   private categoryDefaults(category: ImageCategory | undefined) {
@@ -137,6 +139,17 @@ export class GenerateService {
       createdAt,
     });
 
+    this.notification.sendTo(
+      userId,
+      {
+        id,
+        status: 'PENDING',
+        createdAt: createdAt.toISOString(),
+        prompt: promptEn,
+      },
+      'image.updated',
+    );
+
     void (async () => {
       try {
         const result = await this.pixellabService.generateImagePixflux(params);
@@ -160,6 +173,23 @@ export class GenerateService {
           format: json.format,
           error: null,
         });
+
+        let imageUrl: string | undefined;
+        try {
+          imageUrl = await this.minioService.getImageUrl(objectKey);
+        } catch (e) {
+          console.warn('Failed to create image URL for SSE', e);
+        }
+
+        this.notification.sendTo(
+          userId,
+          {
+            id,
+            status: 'COMPLETED',
+            imageUrl,
+          },
+          'image.updated',
+        );
       } catch (err) {
         console.error('Image generation failed', err);
         const message = this.userFriendlyJobError(err);
@@ -167,6 +197,16 @@ export class GenerateService {
           status: 'FAILED',
           error: message,
         });
+
+        this.notification.sendTo(
+          userId,
+          {
+            id,
+            status: 'FAILED',
+            error: message,
+          },
+          'image.updated',
+        );
       }
     })();
 

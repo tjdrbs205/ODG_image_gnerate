@@ -20,4 +20,5 @@ export const runtimeConfigSchema = Joi.object({
   MINIO_SECRET_KEY: Joi.string().required(),
   MINIO_BUCKET: Joi.string().default('odg-images'),
   MINIO_PUBLIC_ENDPOINT: Joi.string().required(),
+  ORIGIN_URL: Joi.string().uri().default('http://localhost:5173'),
 });

@@ -27,7 +27,10 @@ async function bootstrap() {
   Object.assign(RuntimeConfigStore, value);
 
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  app.enableCors({
+    origin: RuntimeConfigStore['ORIGIN_URL'],
+    Credentials: true,
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

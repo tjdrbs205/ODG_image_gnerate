@@ -2,7 +2,6 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 
 import { clearAccessToken, getAccessToken } from '../lib/auth';
-import { api } from '../lib/api';
 
 type Notice = { id: string; text: string };
 
@@ -115,43 +114,55 @@ export function AppLayout() {
   useEffect(() => {
     if (!authed) return;
 
-    const tick = async () => {
-      try {
-        const items = await api.listGallery();
-        const prev = prevStatusById.current;
+    const token = getAccessToken();
+    if (!token) return;
 
-        for (const item of items) {
-          const prevStatus = prev[item.id];
-          if (prevStatus && prevStatus !== item.status) {
-            if (item.status === 'COMPLETED') {
-              setNotices((n) => [
-                {
-                  id: `${item.id}:${Date.now()}`,
-                  text: '이미지 생성이 완료되었습니다.',
-                },
-                ...n,
-              ]);
-            }
-            if (item.status === 'FAILED') {
-              setNotices((n) => [
-                {
-                  id: `${item.id}:${Date.now()}`,
-                  text: '이미지 생성이 실패했습니다.',
-                },
-                ...n,
-              ]);
-            }
-          }
-          prev[item.id] = item.status;
-        }
+    const es = new EventSource(`/api/sse?token=${encodeURIComponent(token)}`);
+
+    const onUpdate = (e: MessageEvent) => {
+      let data: any;
+      try {
+        data = JSON.parse(e.data);
       } catch {
-        // ignore polling errors
+        return;
+      }
+
+      const id = String(data?.id ?? '');
+      const status = String(data?.status ?? '');
+      if (!id || !status) return;
+
+      const prev = prevStatusById.current;
+      const prevStatus = prev[id];
+      prev[id] = status;
+
+      if (prevStatus && prevStatus === status) return;
+
+      if (status === 'COMPLETED') {
+        setNotices((n) => [
+          {
+            id: `${id}:${Date.now()}`,
+            text: '이미지 생성이 완료되었습니다.',
+          },
+          ...n,
+        ]);
+      }
+
+      if (status === 'FAILED') {
+        setNotices((n) => [
+          {
+            id: `${id}:${Date.now()}`,
+            text: '이미지 생성이 실패했습니다.',
+          },
+          ...n,
+        ]);
       }
     };
 
-    tick();
-    const t = window.setInterval(tick, 3000);
-    return () => window.clearInterval(t);
+    es.addEventListener('image.updated', onUpdate as any);
+    return () => {
+      es.removeEventListener('image.updated', onUpdate as any);
+      es.close();
+    };
   }, [authed]);
 
   const logout = () => {

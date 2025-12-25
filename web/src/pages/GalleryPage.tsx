@@ -1,11 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../lib/api';
+import { getAccessToken } from '../lib/auth';
 
 type Item = {
   id: string;
   prompt: string;
   status: 'PENDING' | 'COMPLETED' | 'FAILED';
   createdAt: string;
+  error?: string;
+  imageUrl?: string;
+};
+
+type ImageUpdatedEvent = {
+  id?: string;
+  status?: 'PENDING' | 'COMPLETED' | 'FAILED' | string;
+  createdAt?: string;
+  prompt?: string;
   error?: string;
   imageUrl?: string;
 };
@@ -32,8 +42,65 @@ export function GalleryPage() {
 
   useEffect(() => {
     void refresh();
-    const t = window.setInterval(() => void refresh(), 3000);
-    return () => window.clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const token = getAccessToken();
+    if (!token) return;
+
+    const es = new EventSource(`/api/sse?token=${encodeURIComponent(token)}`);
+
+    const onUpdate = (e: MessageEvent) => {
+      let data: ImageUpdatedEvent;
+      try {
+        data = JSON.parse(e.data) as ImageUpdatedEvent;
+      } catch {
+        return;
+      }
+
+      const id = data?.id;
+      const status = data?.status;
+      if (!id || (status !== 'PENDING' && status !== 'COMPLETED' && status !== 'FAILED')) {
+        return;
+      }
+
+      setItems((prev) => {
+        const idx = prev.findIndex((p) => p.id === id);
+        if (idx === -1) {
+          const createdAt = data.createdAt ?? new Date().toISOString();
+          const prompt = data.prompt ?? '';
+          const next: Item = {
+            id,
+            status,
+            createdAt,
+            prompt,
+            error: data.error,
+            imageUrl: data.imageUrl,
+          };
+          return [next, ...prev];
+        }
+
+        const current = prev[idx];
+        const updated: Item = {
+          ...current,
+          status,
+          ...(data.prompt ? { prompt: data.prompt } : null),
+          ...(data.createdAt ? { createdAt: data.createdAt } : null),
+          ...(typeof data.error !== 'undefined' ? { error: data.error } : null),
+          ...(typeof data.imageUrl !== 'undefined' ? { imageUrl: data.imageUrl } : null),
+        };
+
+        const copy = prev.slice();
+        copy[idx] = updated;
+        return copy;
+      });
+    };
+
+    es.addEventListener('image.updated', onUpdate as any);
+    return () => {
+      es.removeEventListener('image.updated', onUpdate as any);
+      es.close();
+    };
   }, []);
 
   useEffect(() => {
